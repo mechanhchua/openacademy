@@ -77,3 +77,29 @@ class Session(models.Model):
             }}
         delta = fields.Date.from_string(self.end_date) - fields.Date.from_string(self.start_date)
         self.duration = delta.days + 1
+ ###
+    ## using onchange
+    ###
+    @api.onchange('seats', 'attendee_ids')
+    def _change_taken_seats(self):
+        if self.taken_seats > 100:
+            return {'warning': {
+                'title':   'Too many attendees',
+                'message': 'The room has %s available seats and there is %s attendees registered' % (self.seats, len(self.attendee_ids))
+            }}
+
+    ###
+    ## using python constrains
+    ###
+    @api.constrains('seats', 'attendee_ids')
+    def _check_taken_seats(self):
+        for session in self:
+            if session.taken_seats > 100:
+                raise exceptions.ValidationError('The room has %s available seats and there is %s attendees registered' % (session.seats, len(session.attendee_ids)))
+ ###
+    ## using SQL constrains
+    ###
+    _sql_constraints = [
+        # possible only if taken_seats is stored
+        ('session_full', 'CHECK(taken_seats <= 100)', 'The room is full'),
+    ]
