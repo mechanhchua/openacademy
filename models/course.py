@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, exceptions, fields, models
 
-# lop C
+
 class Course(models.Model):
     # ten model la openacademy, mieu ta la Couse
     _name = 'openacademy.course'
